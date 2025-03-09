@@ -31,6 +31,17 @@ const NewIssuePage = () => {
     resolver: zodResolver(createIssueSchema),
   });
 
+  const onSubmit = handleSubmit(async (data) => {
+    try {
+      setLoading(true);
+      await axios.post("/api/issues", data);
+      router.push("/issues");
+    } catch (error) {
+      setLoading(false);
+      setError("An error occurred. Error code: " + error.response.status);
+    }
+  });
+
   return (
     <div className="max-w-xl">
       {error && (
@@ -39,19 +50,7 @@ const NewIssuePage = () => {
           <Callout.Text>{error}</Callout.Text>
         </Callout.Root>
       )}
-      <form
-        className="space-y-3"
-        onSubmit={handleSubmit(async (data) => {
-          try {
-            setLoading(true);
-            await axios.post("/api/issues", data);
-            router.push("/issues");
-          } catch (error) {
-            setLoading(false);
-            setError("An error occurred. Error code: " + error.response.status);
-          }
-        })}
-      >
+      <form className="space-y-3" onSubmit={onSubmit}>
         <TextField.Root placeholder="Add a title…" {...register("title")}>
           <TextField.Slot>
             <MdOutlineTitle />
@@ -68,7 +67,9 @@ const NewIssuePage = () => {
         {errors.description && (
           <ErrorMessage>{errors.description?.message}</ErrorMessage>
         )}
-        <Button disabled={loading}>Submit new issue {loading && <Spinner />}</Button>
+        <Button disabled={loading}>
+          Submit new issue {loading && <Spinner />}
+        </Button>
       </form>
     </div>
   );
