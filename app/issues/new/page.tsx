@@ -12,15 +12,21 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { createIssueSchema } from "../../validationSchemas";
 import { z } from "zod";
 import { Text } from "@radix-ui/themes";
+import ErrorMessage from "@/app/components/ErrorMessage";
 
 type IssueForm = z.infer<typeof createIssueSchema>;
 
 const NewIssuePage = () => {
   const router = useRouter();
   const [error, setError] = useState("");
-  const { register, control, handleSubmit, formState: { errors } } = useForm<IssueForm>({
+  const {
+    register,
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<IssueForm>({
     resolver: zodResolver(createIssueSchema),
-  });  
+  });
 
   return (
     <div className="max-w-xl">
@@ -37,7 +43,7 @@ const NewIssuePage = () => {
             await axios.post("/api/issues", data);
             router.push("/issues");
           } catch (error) {
-            setError('An error occurred. Error code: ' + error.response.status);
+            setError("An error occurred. Error code: " + error.response.status);
           }
         })}
       >
@@ -46,7 +52,7 @@ const NewIssuePage = () => {
             <MdOutlineTitle />
           </TextField.Slot>
         </TextField.Root>
-        {errors.title && (<Text color="red" as="p">{errors.title.message}</Text>)}
+        {errors.title && <ErrorMessage>{errors.title?.message}</ErrorMessage>}
         <Controller
           name="description"
           control={control}
@@ -54,7 +60,9 @@ const NewIssuePage = () => {
             <SimpleMDE placeholder="Add a description…" {...field} />
           )}
         />
-        {errors.description && (<Text color="red" as="p">{errors.description.message}</Text>)}
+        {errors.description && (
+          <ErrorMessage>{errors.description?.message}</ErrorMessage>
+        )}
         <Button>Submit new issue</Button>
       </form>
     </div>
