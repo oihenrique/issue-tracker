@@ -13,12 +13,15 @@ import { createIssueSchema } from "../../validationSchemas";
 import { z } from "zod";
 import { Text } from "@radix-ui/themes";
 import ErrorMessage from "@/app/components/ErrorMessage";
+import { Spinner } from "@/app/components/Spinner";
 
 type IssueForm = z.infer<typeof createIssueSchema>;
 
 const NewIssuePage = () => {
   const router = useRouter();
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const {
     register,
     control,
@@ -40,9 +43,11 @@ const NewIssuePage = () => {
         className="space-y-3"
         onSubmit={handleSubmit(async (data) => {
           try {
+            setLoading(true);
             await axios.post("/api/issues", data);
             router.push("/issues");
           } catch (error) {
+            setLoading(false);
             setError("An error occurred. Error code: " + error.response.status);
           }
         })}
@@ -63,7 +68,7 @@ const NewIssuePage = () => {
         {errors.description && (
           <ErrorMessage>{errors.description?.message}</ErrorMessage>
         )}
-        <Button>Submit new issue</Button>
+        <Button disabled={loading}>Submit new issue {loading && <Spinner />}</Button>
       </form>
     </div>
   );
